@@ -1,15 +1,86 @@
 import { AppHeader } from "@/components/ui/AppHeader";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { Dropdown } from "@/components/ui/Dropdown";
 import InputField from "@/components/ui/input/InputField";
 import { Label } from "@/components/ui/Label";
+import { useReferralStore, type JobStatus } from "@/store/referralStore";
 import { LinearGradient } from "expo-linear-gradient";
-import React, { useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import React, { useEffect, useState } from "react";
+import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 export default function HandoverScreen() {
+  const router = useRouter();
+  const { id } = useLocalSearchParams<{ id?: string }>();
+  const getReferral = useReferralStore((state) => state.getReferral);
+  const updateReferral = useReferralStore((state) => state.updateReferral);
+  const setSelectedReferral = useReferralStore((state) => state.setSelectedReferral);
+
   const [startDate, setStartDate] = useState("");
+  const [jobStatus, setJobStatus] = useState<JobStatus | null>(null);
+  const [referral, setReferral] = useState(useReferralStore.getState().getReferral(id || ""));
+
+  useEffect(() => {
+    if (id) {
+      const ref = getReferral(id);
+      if (ref) {
+        setReferral(ref);
+        setJobStatus(ref.jobStatus || null);
+        setSelectedReferral(id);
+      }
+    } else {
+      // If no ID provided, try to get the most recent referral
+      const referrals = useReferralStore.getState().referrals;
+      if (referrals.length > 0) {
+        const mostRecent = [...referrals].sort(
+          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        )[0];
+        setReferral(mostRecent);
+        setJobStatus(mostRecent.jobStatus || null);
+        setSelectedReferral(mostRecent.id);
+      }
+    }
+  }, [id, getReferral, setSelectedReferral]);
+
+  if (!referral) {
+    return (
+      <LinearGradient
+        colors={["#0a0a0f", "#12121a", "#1a1a24"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.outerContainer}
+      >
+        <View style={styles.container}>
+          <AppHeader subtitle="Provider view" badge="MVP • Mobile" />
+          <View style={[styles.body, styles.bodyContent, { justifyContent: "center", alignItems: "center" }]}>
+            <Text style={[styles.title, { textAlign: "center", marginBottom: 16 }]}>Referral Not Found</Text>
+            <Text style={[styles.value, { textAlign: "center", marginBottom: 24 }]}>
+              The referral you're looking for doesn't exist or has been removed.
+            </Text>
+            <Button variant="secondary" onPress={() => router.back()}>
+              Go Back
+            </Button>
+          </View>
+        </View>
+      </LinearGradient>
+    );
+  }
+
+  const jobStatusOptions: JobStatus[] = [
+    "Intro call scheduled",
+    "Offer sent",
+    "Job confirmed",
+    "Job completed",
+  ];
+
+  const handleStatusChange = (status: JobStatus) => {
+    setJobStatus(status);
+    updateReferral(referral.id, { jobStatus: status });
+  };
+
+  const handleMarkAsDone = () => {
+    router.push(`/invoice?id=${referral.id}`);
+  };
 
   return (
     <LinearGradient
@@ -26,20 +97,23 @@ export default function HandoverScreen() {
           <View style={styles.section}>
             <Card>
               <Label>Customer</Label>
-              <Text style={[styles.value, styles.bold]}>Anna Kowalska</Text>
-              <Text style={styles.small}>
-                +48 600 000 000 • anna@example.com
-              </Text>
+              <Text style={[styles.value, styles.bold]}>{referral.customer.name}</Text>
+              {referral.customerContactsUnlocked ? (
+                <Text style={styles.small}>
+                  {referral.customer.phone} • {referral.customer.email}
+                </Text>
+              ) : (
+                <Text style={[styles.small, { color: "#ff6b6b" }]}>
+                  Contact details locked. Pay connection fee to unlock.
+                </Text>
+              )}
             </Card>
           </View>
 
           <View style={styles.section}>
             <Card>
               <Label>Service</Label>
-              <Text style={styles.small}>
-                Painting 2 rooms, minor repairs. You manage dates and offer
-                directly with the customer.
-              </Text>
+              <Text style={styles.small}>{referral.description}</Text>
               <View style={styles.spacer} />
               <View style={styles.field}>
                 <InputField
@@ -51,13 +125,11 @@ export default function HandoverScreen() {
               </View>
               <View style={styles.field}>
                 <Text style={styles.fieldLabel}>Status</Text>
-                <Dropdown
-                  data={[
-                    "Intro call scheduled",
-                    "Offer sent",
-                    "Job confirmed",
-                  ]}
+                <ControlledDropdown
+                  data={jobStatusOptions}
                   placeholder="Select status"
+                  value={jobStatus}
+                  onSelect={handleStatusChange}
                 />
               </View>
               <Text style={styles.small}>
@@ -68,10 +140,10 @@ export default function HandoverScreen() {
           </View>
 
           <View style={styles.actions}>
-            <Button href="/invoice" variant="primary">
+            <Button variant="primary" onPress={handleMarkAsDone}>
               Mark job as done →
             </Button>
-            <Button href="/(tabs)/referrals" variant="secondary">
+            <Button variant="secondary" onPress={() => router.back()}>
               Back
             </Button>
           </View>
@@ -147,3 +219,102 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
   },
 });
+
+// Controlled Dropdown Component
+interface ControlledDropdownProps {
+  data: JobStatus[];
+  placeholder?: string;
+  value: JobStatus | null;
+  onSelect: (value: JobStatus) => void;
+}
+
+function ControlledDropdown({ data, placeholder, value, onSelect }: ControlledDropdownProps) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <View style={{ width: "100%" }}>
+      <Pressable
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: 16,
+          borderRadius: 12,
+          borderWidth: 1,
+          borderColor: "rgba(255, 255, 255, 0.15)",
+          backgroundColor: "rgba(255, 255, 255, 0.05)",
+        }}
+        onPress={() => setIsOpen(true)}
+      >
+        <Text style={{ color: value ? "#b8b8c8" : "#8a8a9a" }}>
+          {value ?? placeholder}
+        </Text>
+        <Text style={{ color: "#8a8a9a" }}>▼</Text>
+      </Pressable>
+
+      {isOpen && (
+        <Modal
+          visible={isOpen}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setIsOpen(false)}
+        >
+          <Pressable
+            style={{
+              flex: 1,
+              justifyContent: "center",
+              alignItems: "center",
+              backgroundColor: "rgba(0, 0, 0, 0.7)",
+            }}
+            onPress={() => setIsOpen(false)}
+          >
+            <Pressable
+              style={{
+                width: "85%",
+                borderRadius: 16,
+                padding: 16,
+                backgroundColor: "#1a1a24",
+                borderWidth: 1,
+                borderColor: "rgba(0, 245, 255, 0.3)",
+              }}
+              onPress={(e) => e.stopPropagation()}
+            >
+              <ScrollView style={{ maxHeight: 300 }}>
+                {data.map((item) => (
+                  <Pressable
+                    key={item}
+                    onPress={() => {
+                      onSelect(item);
+                      setIsOpen(false);
+                    }}
+                    style={{
+                      padding: 12,
+                      borderRadius: 8,
+                      backgroundColor: value === item ? "rgba(0, 245, 255, 0.15)" : "transparent",
+                      marginBottom: 4,
+                    }}
+                  >
+                    <Text
+                      style={{
+                        color: value === item ? "#00f5ff" : "#b8b8c8",
+                        fontWeight: value === item ? "600" : "400",
+                      }}
+                    >
+                      {item}
+                    </Text>
+                  </Pressable>
+                ))}
+              </ScrollView>
+              <Pressable
+                onPress={() => setIsOpen(false)}
+                style={{ marginTop: 12, alignItems: "flex-end" }}
+              >
+                <Text style={{ color: "#00f5ff", fontWeight: "600" }}>Close</Text>
+              </Pressable>
+            </Pressable>
+          </Pressable>
+        </Modal>
+      )}
+    </View>
+  );
+}

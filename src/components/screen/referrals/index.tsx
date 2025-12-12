@@ -2,11 +2,41 @@ import { AppHeader } from "@/components/ui/AppHeader";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Tag } from "@/components/ui/Tag";
+import { useReferralStore } from "@/store/referralStore";
 import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router";
 import React from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 
 export default function ReferralsScreen() {
+  const router = useRouter();
+  const referrals = useReferralStore((state) => state.referrals);
+  const setSelectedReferral = useReferralStore((state) => state.setSelectedReferral);
+
+  const getStatusTag = (status: string) => {
+    if (status === "Completed / Kickback Released") {
+      return <Tag variant="success">Completed</Tag>;
+    } else if (status === "Job In Progress") {
+      return <Tag variant="success">Job confirmed</Tag>;
+    } else if (status === "Awaiting Provider Acceptance") {
+      return <Tag variant="pending">Awaiting acceptance</Tag>;
+    } else if (status === "Declined") {
+      return <Tag variant="pending">Declined</Tag>;
+    }
+    return <Tag variant="pending">{status}</Tag>;
+  };
+
+  const handleOpenReferral = (id: string, status: string) => {
+    setSelectedReferral(id);
+    if (status === "Awaiting Provider Acceptance") {
+      router.push(`/provider-accepts?id=${id}`);
+    } else if (status === "Job In Progress") {
+      router.push(`/handover?id=${id}`);
+    } else {
+      router.push(`/handover?id=${id}`);
+    }
+  };
+
   return (
     <LinearGradient
       colors={["#0a0a0f", "#12121a", "#1a1a24"]}
@@ -20,39 +50,40 @@ export default function ReferralsScreen() {
           <Text style={styles.title}>Referrals</Text>
 
           <View style={styles.section}>
-            <Card variant="glow">
-              <View style={styles.listItemHeader}>
-                <Text style={[styles.value, styles.bold]}>
-                  Painting – Anna Kowalska
-                </Text>
-                <Tag variant="success">Job confirmed</Tag>
-              </View>
-              <Text style={styles.small}>
-                Kickback 10% • Expected 920 PLN
-              </Text>
-              <View style={styles.actions}>
-                <Button href="/handover" variant="secondary">
-                  Open
-                </Button>
-              </View>
-            </Card>
-
-            <Card>
-              <View style={styles.listItemHeader}>
-                <Text style={[styles.value, styles.bold]}>
-                  Plumbing – Emergency
-                </Text>
-                <Tag variant="pending">Awaiting acceptance</Tag>
-              </View>
-              <Text style={styles.small}>
-                Connection fee 200 PLN • AquaFix Sp. z o.o.
-              </Text>
-              <View style={styles.actions}>
-                <Button href="/provider-accepts" variant="secondary">
-                  Preview
-                </Button>
-              </View>
-            </Card>
+            {referrals.length === 0 ? (
+              <Card>
+                <Text style={styles.small}>No referrals yet. Create your first referral!</Text>
+              </Card>
+            ) : (
+              referrals.map((referral) => (
+                <Card
+                  key={referral.id}
+                  variant={referral.status === "Job In Progress" ? "glow" : undefined}
+                >
+                  <View style={styles.listItemHeader}>
+                    <Text style={[styles.value, styles.bold]}>
+                      {referral.serviceType} – {referral.customer.name}
+                    </Text>
+                    {getStatusTag(referral.status)}
+                  </View>
+                  <Text style={styles.small}>
+                    {referral.status === "Awaiting Provider Acceptance"
+                      ? `Connection fee ${referral.connectionFee} PLN • ${referral.provider}`
+                      : referral.kickbackAmount
+                        ? `Kickback ${referral.kickbackPercent}% • ${referral.kickbackAmount.toFixed(2)} PLN`
+                        : `Kickback ${referral.kickbackPercent}% • Expected ${((referral.estimatedValue ? parseFloat(referral.estimatedValue.split("–")[0].replace(/[^0-9.]/g, "")) : 9000) * referral.kickbackPercent) / 100} PLN`}
+                  </Text>
+                  <View style={styles.actions}>
+                    <Button
+                      variant="secondary"
+                      onPress={() => handleOpenReferral(referral.id, referral.status)}
+                    >
+                      {referral.status === "Awaiting Provider Acceptance" ? "Preview" : "Open"}
+                    </Button>
+                  </View>
+                </Card>
+              ))
+            )}
           </View>
         </ScrollView>
       </View>

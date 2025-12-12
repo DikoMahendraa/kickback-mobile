@@ -4,11 +4,43 @@ import { Card } from "@/components/ui/Card";
 import { Chip } from "@/components/ui/Chip";
 import { Label } from "@/components/ui/Label";
 import { Tag } from "@/components/ui/Tag";
+import { useReferralStore } from "@/store/referralStore";
 import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router";
 import React from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 
 export default function HomeScreen() {
+  const router = useRouter();
+  const referrals = useReferralStore((state) => state.referrals);
+
+  // Get the most recent referral (sorted by createdAt, most recent first)
+  const recentReferral = referrals.length > 0
+    ? [...referrals].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0]
+    : null;
+
+  const getStatusTag = (status: string, jobStatus?: string) => {
+    if (status === "Completed / Kickback Released") {
+      return <Tag variant="success">Completed</Tag>;
+    } else if (status === "Job In Progress") {
+      if (jobStatus === "Job confirmed") {
+        return <Tag variant="success">Job confirmed</Tag>;
+      }
+      return <Tag variant="success">In Progress</Tag>;
+    } else if (status === "Awaiting Provider Acceptance") {
+      return <Tag variant="pending">Awaiting acceptance</Tag>;
+    } else if (status === "Declined") {
+      return <Tag variant="pending">Declined</Tag>;
+    }
+    return <Tag variant="pending">{status}</Tag>;
+  };
+
+  const handleViewReferral = () => {
+    if (recentReferral) {
+      router.push(`/handover?id=${recentReferral.id}`);
+    }
+  };
+
   return (
     <LinearGradient
       colors={["#0a0a0f", "#12121a", "#1a1a24"]}
@@ -48,20 +80,26 @@ export default function HomeScreen() {
           <View style={styles.section}>
             <Card>
               <Label>Recent referral</Label>
-              <View style={styles.listItemHeader}>
-                <Text style={[styles.value, styles.bold]}>
-                  Painting – Anna Kowalska
-                </Text>
-                <Tag variant="success">Job confirmed</Tag>
-              </View>
-              <Text style={styles.small}>
-                Provider: Jan Nowak – Painter • Kickback 10%
-              </Text>
-              <View style={styles.actions}>
-                <Button href="/handover" variant="secondary">
-                  View referral
-                </Button>
-              </View>
+              {recentReferral ? (
+                <>
+                  <View style={styles.listItemHeader}>
+                    <Text style={[styles.value, styles.bold]}>
+                      {recentReferral.serviceType} – {recentReferral.customer.name}
+                    </Text>
+                    {getStatusTag(recentReferral.status, recentReferral.jobStatus)}
+                  </View>
+                  <Text style={styles.small}>
+                    Provider: {recentReferral.provider} • Kickback {recentReferral.kickbackPercent}%
+                  </Text>
+                  <View style={styles.actions}>
+                    <Button variant="secondary" onPress={handleViewReferral}>
+                      View referral
+                    </Button>
+                  </View>
+                </>
+              ) : (
+                <Text style={styles.small}>No referrals yet. Create your first referral!</Text>
+              )}
             </Card>
           </View>
         </ScrollView>

@@ -1,20 +1,69 @@
 import { AppHeader } from "@/components/ui/AppHeader";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { Dropdown } from "@/components/ui/Dropdown";
 import InputField from "@/components/ui/input/InputField";
 import TextareaField from "@/components/ui/input/TextareaField";
 import { Label } from "@/components/ui/Label";
+import { useReferralStore } from "@/store/referralStore";
 import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router";
 import React, { useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 export default function CreateReferralScreen() {
+  const router = useRouter();
+  const createReferral = useReferralStore((state) => state.createReferral);
+  const setSelectedReferral = useReferralStore((state) => state.setSelectedReferral);
+
   const [customerName, setCustomerName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [description, setDescription] = useState("");
   const [connectionFee, setConnectionFee] = useState("");
+  const [serviceType, setServiceType] = useState<string | null>(null);
+  const [provider, setProvider] = useState<string | null>(null);
+  const [paymentTiming, setPaymentTiming] = useState<string | null>(null);
+
+  const serviceTypes = ["Painting", "Plumbing", "Renovation", "Consulting"];
+  const providers = [
+    "Jan Nowak – Painter",
+    "Clean&Fix Sp. z o.o.",
+    "AquaFix Sp. z o.o.",
+    "BuildPro",
+  ];
+  const paymentTimings = ["On accepting referral", "After first meeting"];
+
+  const handleSubmit = () => {
+    // Validation
+    if (!customerName || !phone || !email || !serviceType || !provider || !connectionFee) {
+      Alert.alert("Validation Error", "Please fill in all required fields");
+      return;
+    }
+
+    const fee = parseFloat(connectionFee.replace(/[^0-9.]/g, ""));
+    if (isNaN(fee) || fee <= 0) {
+      Alert.alert("Validation Error", "Please enter a valid connection fee amount");
+      return;
+    }
+
+    // Create referral
+    const referralId = createReferral({
+      customer: {
+        name: customerName,
+        phone: phone,
+        email: email,
+      },
+      serviceType: serviceType,
+      provider: provider,
+      description: description || "No description provided",
+      connectionFee: fee,
+      kickbackPercent: 10,
+    });
+
+    // Set selected referral and navigate
+    setSelectedReferral(referralId);
+    router.push(`/provider-accepts?id=${referralId}`);
+  };
 
   return (
     <LinearGradient
@@ -63,20 +112,20 @@ export default function CreateReferralScreen() {
               <Label>Step 2 • Service & provider</Label>
               <View style={styles.field}>
                 <Text style={styles.fieldLabel}>Service type</Text>
-                <Dropdown
-                  data={["Painting", "Plumbing", "Renovation", "Consulting"]}
+                <ControlledDropdown
+                  data={serviceTypes}
                   placeholder="Select service type"
+                  value={serviceType}
+                  onSelect={setServiceType}
                 />
               </View>
               <View style={styles.field}>
                 <Text style={styles.fieldLabel}>Provider</Text>
-                <Dropdown
-                  data={[
-                    "Pick from your network",
-                    "Jan Nowak – Painter",
-                    "Clean&Fix Sp. z o.o.",
-                  ]}
+                <ControlledDropdown
+                  data={providers}
                   placeholder="Select provider"
+                  value={provider}
+                  onSelect={setProvider}
                 />
               </View>
               <View style={styles.field}>
@@ -103,9 +152,11 @@ export default function CreateReferralScreen() {
               </View>
               <View style={styles.field}>
                 <Text style={styles.fieldLabel}>When is it paid?</Text>
-                <Dropdown
-                  data={["On accepting referral", "After first meeting"]}
+                <ControlledDropdown
+                  data={paymentTimings}
                   placeholder="Select payment timing"
+                  value={paymentTiming}
+                  onSelect={setPaymentTiming}
                 />
               </View>
               <Text style={styles.small}>
@@ -115,10 +166,14 @@ export default function CreateReferralScreen() {
           </View>
 
           <View style={styles.actions}>
-            <Button href="/(tabs)/home" variant="secondary">
+            <Button
+              href="/(tabs)/home"
+              variant="secondary"
+              onPress={() => router.back()}
+            >
               Cancel
             </Button>
-            <Button href="/provider-accepts" variant="primary">
+            <Button variant="primary" onPress={handleSubmit}>
               Send referral →
             </Button>
           </View>
@@ -181,3 +236,108 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
   },
 });
+
+// Controlled Dropdown Component
+interface ControlledDropdownProps {
+  data: string[];
+  placeholder?: string;
+  value: string | null;
+  onSelect: (value: string) => void;
+}
+
+function ControlledDropdown({ data, placeholder, value, onSelect }: ControlledDropdownProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [search, setSearch] = useState("");
+
+  const filteredData = data.filter((item) =>
+    item.toLowerCase().includes(search.toLowerCase())
+  );
+
+  return (
+    <View style={{ width: "100%" }}>
+      <Pressable
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: 16,
+          borderRadius: 12,
+          borderWidth: 1,
+          borderColor: "rgba(255, 255, 255, 0.15)",
+          backgroundColor: "rgba(255, 255, 255, 0.05)",
+        }}
+        onPress={() => setIsOpen(true)}
+      >
+        <Text style={{ color: value ? "#b8b8c8" : "#8a8a9a" }}>
+          {value ?? placeholder}
+        </Text>
+        <Text style={{ color: "#8a8a9a" }}>▼</Text>
+      </Pressable>
+
+      {isOpen && (
+        <Modal
+          visible={isOpen}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setIsOpen(false)}
+        >
+          <Pressable
+            style={{
+              flex: 1,
+              justifyContent: "center",
+              alignItems: "center",
+              backgroundColor: "rgba(0, 0, 0, 0.7)",
+            }}
+            onPress={() => setIsOpen(false)}
+          >
+            <Pressable
+              style={{
+                width: "85%",
+                borderRadius: 16,
+                padding: 16,
+                backgroundColor: "#1a1a24",
+                borderWidth: 1,
+                borderColor: "rgba(0, 245, 255, 0.3)",
+              }}
+              onPress={(e) => e.stopPropagation()}
+            >
+              <ScrollView style={{ maxHeight: 300 }}>
+                {filteredData.map((item) => (
+                  <Pressable
+                    key={item}
+                    onPress={() => {
+                      onSelect(item);
+                      setIsOpen(false);
+                      setSearch("");
+                    }}
+                    style={{
+                      padding: 12,
+                      borderRadius: 8,
+                      backgroundColor: value === item ? "rgba(0, 245, 255, 0.15)" : "transparent",
+                      marginBottom: 4,
+                    }}
+                  >
+                    <Text
+                      style={{
+                        color: value === item ? "#00f5ff" : "#b8b8c8",
+                        fontWeight: value === item ? "600" : "400",
+                      }}
+                    >
+                      {item}
+                    </Text>
+                  </Pressable>
+                ))}
+              </ScrollView>
+              <Pressable
+                onPress={() => setIsOpen(false)}
+                style={{ marginTop: 12, alignItems: "flex-end" }}
+              >
+                <Text style={{ color: "#00f5ff", fontWeight: "600" }}>Close</Text>
+              </Pressable>
+            </Pressable>
+          </Pressable>
+        </Modal>
+      )}
+    </View>
+  );
+}
