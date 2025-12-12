@@ -1,7 +1,7 @@
 import { AppHeader } from "@/components/ui/AppHeader";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import InputField from "@/components/ui/input/InputField";
+import DatePicker from "@/components/ui/input/DatePicker";
 import { Label } from "@/components/ui/Label";
 import { useReferralStore, type JobStatus } from "@/store/referralStore";
 import { LinearGradient } from "expo-linear-gradient";
@@ -16,7 +16,7 @@ export default function HandoverScreen() {
   const updateReferral = useReferralStore((state) => state.updateReferral);
   const setSelectedReferral = useReferralStore((state) => state.setSelectedReferral);
 
-  const [startDate, setStartDate] = useState("");
+  const [startDate, setStartDate] = useState<Date | null>(null);
   const [jobStatus, setJobStatus] = useState<JobStatus | null>(null);
   const [referral, setReferral] = useState(useReferralStore.getState().getReferral(id || ""));
 
@@ -55,7 +55,7 @@ export default function HandoverScreen() {
           <View style={[styles.body, styles.bodyContent, { justifyContent: "center", alignItems: "center" }]}>
             <Text style={[styles.title, { textAlign: "center", marginBottom: 16 }]}>Referral Not Found</Text>
             <Text style={[styles.value, { textAlign: "center", marginBottom: 24 }]}>
-              The referral you're looking for doesn't exist or has been removed.
+              The referral you are looking for does not exist or has been removed.
             </Text>
             <Button variant="secondary" onPress={() => router.back()}>
               Go Back
@@ -116,11 +116,12 @@ export default function HandoverScreen() {
               <Text style={styles.small}>{referral.description}</Text>
               <View style={styles.spacer} />
               <View style={styles.field}>
-                <InputField
+                <DatePicker
                   label="Planned start date"
                   placeholder="dd/mm/yyyy"
                   value={startDate}
-                  onChangeText={setStartDate}
+                  onChange={(date) => setStartDate(date)}
+                  minimumDate={new Date()}
                 />
               </View>
               <View style={styles.field}>
