@@ -3,24 +3,30 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Label } from "@/components/ui/Label";
 import { Tag } from "@/components/ui/Tag";
+import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 
 export default function ProviderAcceptsScreen() {
   return (
-    <View style={styles.outerContainer}>
+    <LinearGradient
+      colors={["#0a0a0f", "#12121a", "#1a1a24"]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={styles.outerContainer}
+    >
       <View style={styles.container}>
         <AppHeader subtitle="Provider view" badge="MVP • Mobile" />
         <ScrollView style={styles.body} contentContainerStyle={styles.bodyContent}>
           <Text style={styles.title}>New Lead</Text>
 
           <View style={styles.section}>
-            <Card>
+            <Card variant="glow">
               <View style={styles.listItemHeader}>
                 <Text style={[styles.value, styles.bold]}>
                   Painting – Flat in Warsaw
                 </Text>
-                <Tag>New</Tag>
+                <Tag variant="pending">New</Tag>
               </View>
               <Text style={styles.small}>
                 Referred by: Build&Fix s.c. • Customer: Anna Kowalska
@@ -60,19 +66,17 @@ export default function ProviderAcceptsScreen() {
           </View>
         </ScrollView>
       </View>
-    </View>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
   outerContainer: {
     flex: 1,
-    backgroundColor: "#f4f5f7",
     alignItems: "center",
   },
   container: {
     flex: 1,
-    backgroundColor: "#ffffff",
     maxWidth: 430,
     width: "100%",
   },
@@ -80,43 +84,54 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   bodyContent: {
-    padding: 12,
-    paddingBottom: 72,
+    padding: 16,
+    paddingBottom: 80,
   },
   title: {
-    marginTop: 4,
-    fontSize: 17.6, // 1.1rem
-    fontWeight: "600",
+    marginTop: 8,
+    fontSize: 24,
+    fontWeight: "700",
+    color: "#ffffff",
+    letterSpacing: 0.5,
+    marginBottom: 8,
+    textShadowColor: "rgba(0, 245, 255, 0.3)",
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 8,
   },
   section: {
-    marginBottom: 12,
+    marginBottom: 16,
   },
   value: {
-    fontSize: 14.4, // 0.9rem
+    fontSize: 15,
+    color: "#b8b8c8",
+    lineHeight: 22,
   },
   bold: {
     fontWeight: "600",
+    color: "#ffffff",
   },
   small: {
-    fontSize: 12, // 0.75rem
-    color: "#78909c",
-    marginTop: 4,
+    fontSize: 12,
+    color: "#8a8a9a",
+    marginTop: 6,
+    lineHeight: 18,
   },
   field: {
     marginBottom: 8,
     marginTop: 8,
   },
   fieldLabel: {
-    fontSize: 12, // 0.75rem
+    fontSize: 12,
     marginBottom: 3,
-    color: "#607d8b",
+    color: "#8a8a9a",
+    fontWeight: "500",
   },
   listItemHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    gap: 4,
-    marginBottom: 4,
+    gap: 8,
+    marginBottom: 6,
   },
   spacer: {
     height: 8,

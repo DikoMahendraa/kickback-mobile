@@ -21,7 +21,7 @@ export default function InputField({
       {label && (
         <Text
           allowFontScaling={false}
-          className="text-black mb-[0.375rem] font-medium text-sm"
+          className="text-text-secondary mb-2 font-medium text-sm"
         >
           {label}
         </Text>
@@ -29,12 +29,17 @@ export default function InputField({
       <TextInput
         allowFontScaling={false}
         multiline={multiline}
-        className="border bg-white border-gray-11 text-base rounded-[0.625rem] p-4"
+        className="border bg-glass border-glass-border text-text-primary text-base rounded-xl p-4"
         placeholder={placeholder}
-        placeholderTextColor="#666666"
+        placeholderTextColor="#8a8a9a"
         value={value}
         onChangeText={onChangeText}
         autoCapitalize="none"
+        style={{
+          borderColor: "rgba(255, 255, 255, 0.15)",
+          backgroundColor: "rgba(255, 255, 255, 0.05)",
+          color: "#b8b8c8",
+        }}
       />
     </View>
   );

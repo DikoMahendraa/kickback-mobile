@@ -1,4 +1,3 @@
-import clsx from "clsx";
 import { ChevronDown, Search } from "lucide-react-native";
 import React, { useState } from "react";
 import {
@@ -31,13 +30,20 @@ export const Dropdown: React.FC<DropdownProps> = ({
   return (
     <View className="w-full">
       <Pressable
-        className="flex-row items-center justify-between p-4 border rounded-lg border-gray-300 bg-white"
+        className="flex-row items-center justify-between p-4 border rounded-xl"
         onPress={() => setIsOpen(true)}
+        style={{
+          borderColor: "rgba(255, 255, 255, 0.15)",
+          backgroundColor: "rgba(255, 255, 255, 0.05)",
+        }}
       >
-        <Text allowFontScaling={false} className="text-gray-700">
+        <Text
+          allowFontScaling={false}
+          style={{ color: selected ? "#b8b8c8" : "#8a8a9a" }}
+        >
           {selected ?? placeholder}
         </Text>
-        <ChevronDown size={20} color="#64748B" />
+        <ChevronDown size={20} color="#8a8a9a" />
       </Pressable>
 
       <Modal
@@ -47,8 +53,18 @@ export const Dropdown: React.FC<DropdownProps> = ({
         transparent
         animationType="fade"
       >
-        <View className="flex-1 justify-center items-center bg-black/30">
-          <View className="w-11/12 bg-white rounded-2xl shadow-xl p-4">
+        <View
+          className="flex-1 justify-center items-center"
+          style={{ backgroundColor: "rgba(0, 0, 0, 0.7)" }}
+        >
+          <View
+            className="w-11/12 rounded-2xl shadow-xl p-4"
+            style={{
+              backgroundColor: "#1a1a24",
+              borderWidth: 1,
+              borderColor: "rgba(0, 245, 255, 0.3)",
+            }}
+          >
             <InputWithIcon
               prefix={<Search size={16} color="#64748B" />}
               value={search}
@@ -62,19 +78,24 @@ export const Dropdown: React.FC<DropdownProps> = ({
               keyExtractor={(item) => item}
               renderItem={({ item }) => (
                 <TouchableOpacity
-                  className="p-2"
+                  className="p-2 rounded-lg"
                   onPress={() => {
                     setSelected(item);
                     setIsOpen(false);
                     setSearch("");
                   }}
+                  style={{
+                    backgroundColor:
+                      selected === item
+                        ? "rgba(0, 245, 255, 0.15)"
+                        : "transparent",
+                  }}
                 >
                   <Text
-                    className={clsx(
-                      selected === item
-                        ? "text-primary-01 font-semibold"
-                        : "text-black-05"
-                    )}
+                    style={{
+                      color: selected === item ? "#00f5ff" : "#b8b8c8",
+                      fontWeight: selected === item ? "600" : "400",
+                    }}
                   >
                     {item}
                   </Text>
@@ -83,7 +104,8 @@ export const Dropdown: React.FC<DropdownProps> = ({
               ListEmptyComponent={
                 <Text
                   allowFontScaling={false}
-                  className="text-center text-gray-400 my-8"
+                  className="text-center my-8"
+                  style={{ color: "#8a8a9a" }}
                 >
                   No results found
                 </Text>
@@ -94,7 +116,8 @@ export const Dropdown: React.FC<DropdownProps> = ({
               <Pressable onPress={() => setIsOpen(false)}>
                 <Text
                   allowFontScaling={false}
-                  className="text-primary-01 font-semibold text-base"
+                  className="font-semibold text-base"
+                  style={{ color: "#00f5ff" }}
                 >
                   Close
                 </Text>

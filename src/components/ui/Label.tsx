@@ -11,9 +11,11 @@ export function Label({ children }: LabelProps) {
 
 const styles = StyleSheet.create({
   label: {
-    fontSize: 11.2, // 0.7rem
+    fontSize: 11,
     textTransform: "uppercase",
-    color: "#78909c",
-    marginBottom: 4,
+    color: "#8a8a9a",
+    marginBottom: 8,
+    fontWeight: "600",
+    letterSpacing: 1.2,
   },
 });

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import SplashScreen from "@/components/ui/SplashScreen";
 import { useRouter } from "expo-router";
@@ -17,8 +17,15 @@ export default function Index() {
     console.log("Splash animation completed!");
   };
 
+  useEffect(() => {
+    if (!showSplash) {
+      // Navigate to home page after splash screen completes
+      router.replace("/(tabs)/home");
+    }
+  }, [showSplash, router]);
+
   if (!showSplash) {
-    return router.push("/home");
+    return null; // Return null while navigating
   }
 
   return (

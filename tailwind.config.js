@@ -27,6 +27,36 @@ module.exports = {
         inter: ["Inter", "sans-serif"],
       },
       colors: {
+        // Futuristic Dark Backgrounds
+        "dark-01": "#0a0a0f",
+        "dark-02": "#12121a",
+        "dark-03": "#1a1a24",
+        "dark-04": "#22222e",
+        "dark-05": "#2a2a38",
+        // Neon Cyan Accents
+        "neon-cyan": "#00f5ff",
+        "neon-cyan-bright": "#00d4ff",
+        "neon-cyan-dark": "#00a8cc",
+        "neon-cyan-glow": "rgba(0, 245, 255, 0.3)",
+        // Neon Purple Accents
+        "neon-purple": "#a855f7",
+        "neon-purple-bright": "#9333ea",
+        "neon-purple-dark": "#7e22ce",
+        "neon-purple-glow": "rgba(168, 85, 247, 0.3)",
+        // Electric Blue
+        "electric-blue": "#3b82f6",
+        "electric-blue-bright": "#60a5fa",
+        "electric-blue-dark": "#2563eb",
+        "electric-blue-glow": "rgba(59, 130, 246, 0.3)",
+        // Glassmorphism
+        "glass": "rgba(255, 255, 255, 0.05)",
+        "glass-border": "rgba(255, 255, 255, 0.1)",
+        "glass-hover": "rgba(255, 255, 255, 0.08)",
+        // Text Colors
+        "text-primary": "#ffffff",
+        "text-secondary": "#b8b8c8",
+        "text-tertiary": "#8a8a9a",
+        // Legacy colors (keeping for compatibility)
         "gray-01": "#D8DADC",
         "gray-02": "#4B5264",
         "gray-03": "#888888",

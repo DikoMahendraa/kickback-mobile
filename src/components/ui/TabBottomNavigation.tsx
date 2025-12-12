@@ -1,6 +1,7 @@
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import { PlatformPressable, Text } from "@react-navigation/elements";
 import { useLinkBuilder } from "@react-navigation/native";
+import { BlurView } from "expo-blur";
 import { usePathname } from "expo-router";
 import { StyleSheet, View } from "react-native";
 
@@ -34,7 +35,8 @@ export function TabBottomNavigation({
 
   return (
     <View style={styles.container}>
-      {state.routes.map((route, index) => {
+      <BlurView intensity={40} tint="dark" style={styles.blurContainer}>
+        {state.routes.map((route, index) => {
         const { options } = descriptors[route.key];
         const label =
           options.tabBarLabel !== undefined
@@ -79,7 +81,12 @@ export function TabBottomNavigation({
             <Text
               style={[
                 styles.label,
-                { color: isFocused ? "#1e88e5" : "#607d8b" },
+                {
+                  color: isFocused ? "#00f5ff" : "#8a8a9a",
+                  textShadowColor: isFocused ? "rgba(0, 245, 255, 0.5)" : "transparent",
+                  textShadowOffset: { width: 0, height: 0 },
+                  textShadowRadius: isFocused ? 4 : 0,
+                },
               ]}
             >
               {(label as string).replaceAll("/index", "") as string}
@@ -87,36 +94,48 @@ export function TabBottomNavigation({
           </PlatformPressable>
         );
       })}
+      </BlurView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-around",
-    backgroundColor: "#ffffff",
-    borderTopWidth: 1,
-    borderTopColor: "#e0e4ea",
-    paddingTop: 6,
-    paddingBottom: 8,
     position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
+    overflow: "hidden",
+    borderTopWidth: 1,
+    borderTopColor: "rgba(0, 245, 255, 0.2)",
+    shadowColor: "#00f5ff",
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 10,
+  },
+  blurContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-around",
+    paddingTop: 8,
+    paddingBottom: 12,
+    backgroundColor: "rgba(10, 10, 15, 0.85)",
   },
   tab: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    paddingVertical: 4,
   },
   icon: {
-    fontSize: 17.6, // 1.1rem
-    marginBottom: 2,
+    fontSize: 20,
+    marginBottom: 4,
   },
   label: {
-    fontSize: 11.2, // 0.7rem
+    fontSize: 11,
     textTransform: "capitalize",
+    fontWeight: "500",
+    letterSpacing: 0.3,
   },
 });

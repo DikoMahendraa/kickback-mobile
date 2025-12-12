@@ -5,6 +5,7 @@ import { Dropdown } from "@/components/ui/Dropdown";
 import InputField from "@/components/ui/input/InputField";
 import { Label } from "@/components/ui/Label";
 import * as DocumentPicker from "expo-document-picker";
+import { LinearGradient } from "expo-linear-gradient";
 import React, { useState } from "react";
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
@@ -26,7 +27,12 @@ export default function InvoiceScreen() {
   };
 
   return (
-    <View style={styles.outerContainer}>
+    <LinearGradient
+      colors={["#0a0a0f", "#12121a", "#1a1a24"]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={styles.outerContainer}
+    >
       <View style={styles.container}>
         <AppHeader subtitle="Provider view" badge="MVP • Mobile" />
         <ScrollView style={styles.body} contentContainerStyle={styles.bodyContent}>
@@ -103,19 +109,17 @@ export default function InvoiceScreen() {
           </View>
         </ScrollView>
       </View>
-    </View>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
   outerContainer: {
     flex: 1,
-    backgroundColor: "#f4f5f7",
     alignItems: "center",
   },
   container: {
     flex: 1,
-    backgroundColor: "#ffffff",
     maxWidth: 430,
     width: "100%",
   },
@@ -123,42 +127,51 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   bodyContent: {
-    padding: 12,
-    paddingBottom: 72,
+    padding: 16,
+    paddingBottom: 80,
   },
   title: {
-    marginTop: 4,
-    fontSize: 17.6, // 1.1rem
-    fontWeight: "600",
+    marginTop: 8,
+    fontSize: 24,
+    fontWeight: "700",
+    color: "#ffffff",
+    letterSpacing: 0.5,
+    marginBottom: 8,
+    textShadowColor: "rgba(0, 245, 255, 0.3)",
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 8,
   },
   section: {
-    marginBottom: 12,
+    marginBottom: 16,
   },
   field: {
     marginBottom: 8,
   },
   fieldLabel: {
-    fontSize: 12, // 0.75rem
+    fontSize: 12,
     marginBottom: 3,
-    color: "#607d8b",
+    color: "#8a8a9a",
+    fontWeight: "500",
   },
   small: {
-    fontSize: 12, // 0.75rem
-    color: "#78909c",
-    marginTop: 4,
+    fontSize: 12,
+    color: "#8a8a9a",
+    marginTop: 6,
+    lineHeight: 18,
   },
   fileButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-    borderRadius: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
     borderWidth: 1,
-    borderColor: "#cfd8dc",
-    backgroundColor: "#ffffff",
+    borderColor: "rgba(255, 255, 255, 0.15)",
+    backgroundColor: "rgba(255, 255, 255, 0.05)",
     alignItems: "center",
   },
   fileButtonText: {
-    fontSize: 13.6, // 0.85rem
-    color: "#37474f",
+    fontSize: 14,
+    color: "#b8b8c8",
+    fontWeight: "500",
   },
   actions: {
     flexDirection: "row",
