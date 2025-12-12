@@ -1,0 +1,5 @@
+list of issues for references
+
+1. https://github.com/facebook/react-native/issues/27355
+2. https://github.com/Shopify/flash-list/issues/1461
+3. https://www.npmjs.com/package/react-native-pell-rich-editor
