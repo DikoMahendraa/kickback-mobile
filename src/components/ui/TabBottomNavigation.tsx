@@ -3,16 +3,25 @@ import { PlatformPressable, Text } from "@react-navigation/elements";
 import { useLinkBuilder } from "@react-navigation/native";
 import { BlurView } from "expo-blur";
 import { usePathname } from "expo-router";
+import { Home, RefreshCw, Wallet } from "lucide-react-native";
+import React from "react";
 import { StyleSheet, View } from "react-native";
 
 const getTabIcon = (routeName: string, isFocused: boolean) => {
-  const iconMap: { [key: string]: string } = {
-    home: "🏠",
-    referrals: "🔁",
-    payments: "💰",
-  };
+  const iconSize = 22;
+  const iconColor = isFocused ? "#00f5ff" : "#8a8a9a";
+  const strokeWidth = isFocused ? 2.5 : 2;
 
-  return iconMap[routeName] || "🏠";
+  switch (routeName) {
+    case "home":
+      return <Home size={iconSize} color={iconColor} strokeWidth={strokeWidth} />;
+    case "referrals":
+      return <RefreshCw size={iconSize} color={iconColor} strokeWidth={strokeWidth} />;
+    case "payments":
+      return <Wallet size={iconSize} color={iconColor} strokeWidth={strokeWidth} />;
+    default:
+      return <Home size={iconSize} color={iconColor} strokeWidth={strokeWidth} />;
+  }
 };
 
 export function TabBottomNavigation({
@@ -37,63 +46,63 @@ export function TabBottomNavigation({
     <View style={styles.container}>
       <BlurView intensity={40} tint="dark" style={styles.blurContainer}>
         {state.routes.map((route, index) => {
-        const { options } = descriptors[route.key];
-        const label =
-          options.tabBarLabel !== undefined
-            ? options.tabBarLabel
-            : options.title !== undefined
-              ? options.title
-              : route.name;
+          const { options } = descriptors[route.key];
+          const label =
+            options.tabBarLabel !== undefined
+              ? options.tabBarLabel
+              : options.title !== undefined
+                ? options.title
+                : route.name;
 
-        const isFocused = state.index === index;
+          const isFocused = state.index === index;
 
-        const onPress = () => {
-          const event = navigation.emit({
-            type: "tabPress",
-            target: route.key,
-            canPreventDefault: true,
-          });
+          const onPress = () => {
+            const event = navigation.emit({
+              type: "tabPress",
+              target: route.key,
+              canPreventDefault: true,
+            });
 
-          if (!isFocused && !event.defaultPrevented) {
-            navigation.navigate(route.name, route.params);
-          }
-        };
+            if (!isFocused && !event.defaultPrevented) {
+              navigation.navigate(route.name, route.params);
+            }
+          };
 
-        const onLongPress = () => {
-          navigation.emit({
-            type: "tabLongPress",
-            target: route.key,
-          });
-        };
+          const onLongPress = () => {
+            navigation.emit({
+              type: "tabLongPress",
+              target: route.key,
+            });
+          };
 
-        return (
-          <PlatformPressable
-            key={index}
-            href={buildHref(route.name, route.params)}
-            accessibilityState={isFocused ? { selected: true } : {}}
-            accessibilityLabel={options.tabBarAccessibilityLabel}
-            testID={options.tabBarButtonTestID}
-            onPress={onPress}
-            onLongPress={onLongPress}
-            style={styles.tab}
-          >
-            <Text style={styles.icon}>{getTabIcon(route.name, isFocused)}</Text>
-            <Text
-              style={[
-                styles.label,
-                {
-                  color: isFocused ? "#00f5ff" : "#8a8a9a",
-                  textShadowColor: isFocused ? "rgba(0, 245, 255, 0.5)" : "transparent",
-                  textShadowOffset: { width: 0, height: 0 },
-                  textShadowRadius: isFocused ? 4 : 0,
-                },
-              ]}
+          return (
+            <PlatformPressable
+              key={index}
+              href={buildHref(route.name, route.params)}
+              accessibilityState={isFocused ? { selected: true } : {}}
+              accessibilityLabel={options.tabBarAccessibilityLabel}
+              testID={options.tabBarButtonTestID}
+              onPress={onPress}
+              onLongPress={onLongPress}
+              style={styles.tab}
             >
-              {(label as string).replaceAll("/index", "") as string}
-            </Text>
-          </PlatformPressable>
-        );
-      })}
+              <View style={styles.iconContainer}>{getTabIcon(route.name, isFocused)}</View>
+              <Text
+                style={[
+                  styles.label,
+                  {
+                    color: isFocused ? "#00f5ff" : "#8a8a9a",
+                    textShadowColor: isFocused ? "rgba(0, 245, 255, 0.5)" : "transparent",
+                    textShadowOffset: { width: 0, height: 0 },
+                    textShadowRadius: isFocused ? 4 : 0,
+                  },
+                ]}
+              >
+                {(label as string).replaceAll("/index", "") as string}
+              </Text>
+            </PlatformPressable>
+          );
+        })}
       </BlurView>
     </View>
   );
@@ -128,9 +137,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingVertical: 4,
   },
-  icon: {
-    fontSize: 20,
+  iconContainer: {
     marginBottom: 4,
+    alignItems: "center",
+    justifyContent: "center",
   },
   label: {
     fontSize: 11,
