@@ -6,6 +6,7 @@ type Props = {
   placeholder?: string;
   value?: string;
   multiline?: boolean;
+  secureTextEntry?: boolean;
   onChangeText?: (text: string) => void;
 };
 
@@ -15,6 +16,7 @@ export default function InputField({
   value,
   onChangeText,
   multiline = false,
+  secureTextEntry = false,
 }: Props) {
   return (
     <View>
@@ -29,6 +31,7 @@ export default function InputField({
       <TextInput
         allowFontScaling={false}
         multiline={multiline}
+        secureTextEntry={secureTextEntry}
         className="border bg-glass border-glass-border text-text-primary text-base rounded-xl p-4"
         placeholder={placeholder}
         placeholderTextColor="#8a8a9a"

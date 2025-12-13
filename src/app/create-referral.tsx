@@ -4,6 +4,9 @@ import { Card } from "@/components/ui/Card";
 import InputField from "@/components/ui/input/InputField";
 import TextareaField from "@/components/ui/input/TextareaField";
 import { Label } from "@/components/ui/Label";
+import SignInScreen from "@/components/screen/auth/sign-in";
+import SignUpScreen from "@/components/screen/auth/sign-up";
+import { useAuthStore } from "@/store/authStore";
 import { useReferralStore } from "@/store/referralStore";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
@@ -14,6 +17,11 @@ export default function CreateReferralScreen() {
   const router = useRouter();
   const createReferral = useReferralStore((state) => state.createReferral);
   const setSelectedReferral = useReferralStore((state) => state.setSelectedReferral);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const user = useAuthStore((state) => state.user);
+  
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authMode, setAuthMode] = useState<"login" | "register">("login");
 
   const [customerName, setCustomerName] = useState("");
   const [phone, setPhone] = useState("");
@@ -33,7 +41,16 @@ export default function CreateReferralScreen() {
   ];
   const paymentTimings = ["On accepting referral", "After first meeting"];
 
+  const handleAuthSuccess = () => {
+    setShowAuthModal(false);
+  };
+
   const handleSubmit = () => {
+    // Check authentication before submitting
+    if (!isAuthenticated) {
+      setShowAuthModal(true);
+      return;
+    }
     // Validation
     if (!customerName || !phone || !email || !serviceType || !provider || !connectionFee) {
       Alert.alert("Validation Error", "Please fill in all required fields");
@@ -179,6 +196,32 @@ export default function CreateReferralScreen() {
           </View>
         </ScrollView>
       </View>
+
+      {/* Authentication Modal */}
+      <Modal
+        visible={showAuthModal}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => {
+          if (isAuthenticated) {
+            setShowAuthModal(false);
+          }
+        }}
+      >
+        <View style={styles.modalContainer}>
+          {authMode === "login" ? (
+            <SignInScreen
+              onSuccess={handleAuthSuccess}
+              onSwitchToRegister={() => setAuthMode("register")}
+            />
+          ) : (
+            <SignUpScreen
+              onSuccess={handleAuthSuccess}
+              onSwitchToLogin={() => setAuthMode("login")}
+            />
+          )}
+        </View>
+      </Modal>
     </LinearGradient>
   );
 }
@@ -234,6 +277,9 @@ const styles = StyleSheet.create({
     gap: 8,
     marginTop: 12,
     flexWrap: "wrap",
+  },
+  modalContainer: {
+    flex: 1,
   },
 });
 
