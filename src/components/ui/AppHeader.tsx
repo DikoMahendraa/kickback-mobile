@@ -1,7 +1,9 @@
+import { useAuthStore } from "@/store/authStore";
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router";
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 interface AppHeaderProps {
   title?: string;
@@ -10,6 +12,25 @@ interface AppHeaderProps {
 }
 
 export function AppHeader({ title = "Kickback", subtitle, badge }: AppHeaderProps) {
+  const router = useRouter();
+  const user = useAuthStore((state) => state.user);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
+  const handleUserPress = () => {
+    if (isAuthenticated) {
+      router.push("/profile");
+    }
+  };
+
+  const getInitials = (name: string) => {
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
   return (
     <View style={styles.container}>
       <LinearGradient
@@ -21,9 +42,11 @@ export function AppHeader({ title = "Kickback", subtitle, badge }: AppHeaderProp
         <View style={styles.glowEffect} />
         <BlurView intensity={30} tint="dark" style={styles.blurOverlay}>
           <View style={styles.content}>
-            <View>
-              <Text style={styles.title}>{title}</Text>
-              {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
+            <View style={styles.leftSection}>
+              <View>
+                <Text style={styles.title}>{title}</Text>
+                {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
+              </View>
             </View>
             {badge && (
               <View style={styles.badgeContainer}>
@@ -36,6 +59,13 @@ export function AppHeader({ title = "Kickback", subtitle, badge }: AppHeaderProp
                   <Text style={styles.badgeText}>{badge}</Text>
                 </LinearGradient>
               </View>
+            )}
+            {isAuthenticated && user && (
+              <Pressable onPress={handleUserPress} style={styles.userButton}>
+                <View style={styles.userAvatar}>
+                  <Text style={styles.userInitials}>{getInitials(user.name)}</Text>
+                </View>
+              </Pressable>
             )}
           </View>
         </BlurView>
@@ -73,6 +103,31 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+  },
+  leftSection: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    flex: 1,
+  },
+  userButton: {
+    marginLeft: 12,
+  },
+  userAvatar: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: "rgba(0, 245, 255, 0.2)",
+    borderWidth: 1,
+    borderColor: "rgba(0, 245, 255, 0.4)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  userInitials: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#00f5ff",
+    letterSpacing: 0.5,
   },
   title: {
     fontSize: 20,

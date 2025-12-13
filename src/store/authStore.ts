@@ -19,11 +19,12 @@ interface AuthStore {
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   register: (email: string, password: string, name: string, userType: UserType, phone?: string, businessName?: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
+  resetStore: () => void;
   getCurrentUser: () => User | null;
 }
 
 // Static user database (in-memory)
-const staticUsers: Array<User & { password: string }> = [
+const staticUsers: (User & { password: string })[] = [
   {
     id: "1",
     email: "user@example.com",
@@ -116,6 +117,25 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       user: null,
       isAuthenticated: false,
     });
+  },
+
+  resetStore: () => {
+    // Reset auth store
+    set({
+      user: null,
+      isAuthenticated: false,
+    });
+    
+    // Reset referral store if available
+    try {
+      const { useReferralStore } = require("./referralStore");
+      useReferralStore.setState({
+        referrals: [],
+        selectedReferralId: null,
+      });
+    } catch (error) {
+      // Referral store might not be available, ignore
+    }
   },
 
   getCurrentUser: () => {

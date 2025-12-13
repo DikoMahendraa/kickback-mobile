@@ -158,11 +158,11 @@ export default function InvoiceScreen() {
               </View>
               <View style={styles.field}>
                 <Text style={styles.fieldLabel}>Kickback %</Text>
-                <Text style={styles.value}>{referral.kickbackPercent}%</Text>
+                <Text className="text-white">{referral.kickbackPercent}%</Text>
               </View>
               <View style={styles.field}>
                 <Text style={styles.fieldLabel}>Kickback amount</Text>
-                <Text style={[styles.value, styles.bold]}>
+                <Text className="text-white font-bold">
                   {kickbackAmount ? `${kickbackAmount} PLN` : "Calculated automatically"}
                 </Text>
               </View>

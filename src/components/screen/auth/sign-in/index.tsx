@@ -2,7 +2,6 @@ import { AppHeader } from "@/components/ui/AppHeader";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import InputField from "@/components/ui/input/InputField";
-import { Label } from "@/components/ui/Label";
 import { useAuthStore } from "@/store/authStore";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
@@ -84,7 +83,7 @@ export default function SignInScreen({ onSuccess, onSwitchToRegister }: SignInSc
           </View>
 
           <View style={styles.switchContainer}>
-            <Text style={styles.switchText}>Don't have an account? </Text>
+            <Text style={styles.switchText}>{`Don't`} have an account? </Text>
             <TouchableOpacity onPress={onSwitchToRegister}>
               <Text style={styles.switchLink}>Sign Up</Text>
             </TouchableOpacity>
@@ -121,10 +120,10 @@ const styles = StyleSheet.create({
   outerContainer: {
     flex: 1,
     alignItems: "center",
+    width: "100%"
   },
   container: {
     flex: 1,
-    maxWidth: 430,
     width: "100%",
   },
   body: {
