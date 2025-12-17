@@ -6,7 +6,7 @@ import { useReferralStore } from "@/store/referralStore";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React from "react";
-import { ScrollView, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 
 export default function ReferralsScreen() {
   const router = useRouter();
@@ -42,16 +42,16 @@ export default function ReferralsScreen() {
       colors={["#0a0a0f", "#12121a", "#1a1a24"]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
-      className="flex-1 items-center"
+      style={styles.outerContainer}
     >
-      <View className="flex-1 max-w-[430px] w-full">
+      <View style={styles.container}>
         <AppHeader subtitle="Referrer view" badge="MVP • Mobile" />
-        <ScrollView className="flex-1" contentContainerStyle={{ padding: 16, paddingBottom: 80 }}>
-          <Text className="mt-2 text-2xl font-bold text-white tracking-wide mb-2" style={{ textShadowColor: "rgba(0, 245, 255, 0.3)", textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 8 }}>
+        <ScrollView style={styles.body} contentContainerStyle={styles.bodyContent}>
+          <Text style={styles.title}>
             Referrals
           </Text>
 
-          <View className="mb-4">
+          <View style={styles.section}>
             {referrals.length === 0 ? (
               <Card>
                 <Text className="text-xs text-text-tertiary mt-1.5 leading-[18px]">No referrals yet. Create your first referral!</Text>
@@ -66,8 +66,9 @@ export default function ReferralsScreen() {
                     <Text className="text-[15px] leading-[22px] font-semibold text-white">
                       {referral.serviceType} – {referral.customer.name}
                     </Text>
-                    <View>
-                      {getStatusTag(referral.status)}</View>
+
+                    {getStatusTag(referral.status)}
+
                   </View>
                   <Text className="text-xs text-text-tertiary mt-1.5 leading-[18px]">
                     {referral.status === "Awaiting Provider Acceptance"
@@ -93,4 +94,37 @@ export default function ReferralsScreen() {
     </LinearGradient>
   );
 }
+
+const styles = StyleSheet.create({
+  outerContainer: {
+    flex: 1,
+    alignItems: "center",
+  },
+  container: {
+    flex: 1,
+    maxWidth: 430,
+    width: "100%",
+  },
+  body: {
+    flex: 1,
+  },
+  bodyContent: {
+    padding: 16,
+    paddingBottom: 80,
+  },
+  title: {
+    marginTop: 8,
+    fontSize: 24,
+    fontWeight: "700",
+    color: "#ffffff",
+    letterSpacing: 0.5,
+    marginBottom: 8,
+    textShadowColor: "rgba(0, 245, 255, 0.3)",
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 8,
+  },
+  section: {
+    marginBottom: 16,
+  },
+});
 

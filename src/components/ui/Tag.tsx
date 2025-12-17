@@ -1,6 +1,6 @@
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text } from "react-native";
 
 interface TagProps {
   children: React.ReactNode;
@@ -8,7 +8,7 @@ interface TagProps {
 }
 
 export function Tag({ children, variant = "success" }: TagProps) {
-  const getGradientColors = () => {
+  const getGradientColors = (variant: string) => {
     switch (variant) {
       case "success":
         return ["rgba(0, 255, 127, 0.2)", "rgba(0, 200, 100, 0.2)"];
@@ -19,7 +19,7 @@ export function Tag({ children, variant = "success" }: TagProps) {
     }
   };
 
-  const getTextColor = () => {
+  const getTextColor = (variant: string) => {
     switch (variant) {
       case "success":
         return "#00ff7f";
@@ -30,7 +30,7 @@ export function Tag({ children, variant = "success" }: TagProps) {
     }
   };
 
-  const getBorderColor = () => {
+  const getBorderColor = (variant: string) => {
     switch (variant) {
       case "success":
         return "rgba(0, 255, 127, 0.4)";
@@ -42,16 +42,23 @@ export function Tag({ children, variant = "success" }: TagProps) {
   };
 
   return (
-    <View style={[styles.tagContainer, { borderColor: getBorderColor() }]}>
-      <LinearGradient
-        colors={getGradientColors()}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.tag}
-      >
-        <Text style={[styles.tagText, { color: getTextColor() }]}>{children}</Text>
-      </LinearGradient>
-    </View>
+    <LinearGradient
+      // @ts-ignore
+      colors={getGradientColors(variant)}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={[
+        styles.tag,
+        {
+          borderColor: getBorderColor(variant),
+          alignSelf: "flex-start", // 🔥 ini kunci
+        },
+      ]}
+    >
+      <Text style={[styles.tagText, { color: getTextColor(variant) }]}>
+        {children}
+      </Text>
+    </LinearGradient>
   );
 }
 
