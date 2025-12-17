@@ -6,7 +6,7 @@ import { useReferralStore } from "@/store/referralStore";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { ScrollView, Text, View } from "react-native";
 
 export default function ReferralsScreen() {
   const router = useRouter();
@@ -42,17 +42,19 @@ export default function ReferralsScreen() {
       colors={["#0a0a0f", "#12121a", "#1a1a24"]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
-      style={styles.outerContainer}
+      className="flex-1 items-center"
     >
-      <View style={styles.container}>
+      <View className="flex-1 max-w-[430px] w-full">
         <AppHeader subtitle="Referrer view" badge="MVP • Mobile" />
-        <ScrollView style={styles.body} contentContainerStyle={styles.bodyContent}>
-          <Text style={styles.title}>Referrals</Text>
+        <ScrollView className="flex-1" contentContainerStyle={{ padding: 16, paddingBottom: 80 }}>
+          <Text className="mt-2 text-2xl font-bold text-white tracking-wide mb-2" style={{ textShadowColor: "rgba(0, 245, 255, 0.3)", textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 8 }}>
+            Referrals
+          </Text>
 
-          <View style={styles.section}>
+          <View className="mb-4">
             {referrals.length === 0 ? (
               <Card>
-                <Text style={styles.small}>No referrals yet. Create your first referral!</Text>
+                <Text className="text-xs text-text-tertiary mt-1.5 leading-[18px]">No referrals yet. Create your first referral!</Text>
               </Card>
             ) : (
               referrals.map((referral) => (
@@ -60,20 +62,21 @@ export default function ReferralsScreen() {
                   key={referral.id}
                   variant={referral.status === "Job In Progress" ? "glow" : undefined}
                 >
-                  <View style={styles.listItemHeader}>
-                    <Text style={[styles.value, styles.bold]}>
+                  <View className="gap-2 mb-1.5">
+                    <Text className="text-[15px] leading-[22px] font-semibold text-white">
                       {referral.serviceType} – {referral.customer.name}
                     </Text>
-                    {getStatusTag(referral.status)}
+                    <View>
+                      {getStatusTag(referral.status)}</View>
                   </View>
-                  <Text style={styles.small}>
+                  <Text className="text-xs text-text-tertiary mt-1.5 leading-[18px]">
                     {referral.status === "Awaiting Provider Acceptance"
                       ? `Connection fee ${referral.connectionFee} PLN • ${referral.provider}`
                       : referral.kickbackAmount
                         ? `Kickback ${referral.kickbackPercent}% • ${referral.kickbackAmount.toFixed(2)} PLN`
                         : `Kickback ${referral.kickbackPercent}% • Expected ${((referral.estimatedValue ? parseFloat(referral.estimatedValue.split("–")[0].replace(/[^0-9.]/g, "")) : 9000) * referral.kickbackPercent) / 100} PLN`}
                   </Text>
-                  <View style={styles.actions}>
+                  <View className="flex-row gap-2 mt-4 flex-wrap">
                     <Button
                       variant="secondary"
                       onPress={() => handleOpenReferral(referral.id, referral.status)}
@@ -91,63 +94,3 @@ export default function ReferralsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  outerContainer: {
-    flex: 1,
-    alignItems: "center",
-  },
-  container: {
-    flex: 1,
-    maxWidth: 430,
-    width: "100%",
-  },
-  body: {
-    flex: 1,
-  },
-  bodyContent: {
-    padding: 16,
-    paddingBottom: 80,
-  },
-  title: {
-    marginTop: 8,
-    fontSize: 24,
-    fontWeight: "700",
-    color: "#ffffff",
-    letterSpacing: 0.5,
-    marginBottom: 8,
-    textShadowColor: "rgba(0, 245, 255, 0.3)",
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 8,
-  },
-  section: {
-    marginBottom: 16,
-  },
-  value: {
-    fontSize: 15,
-    color: "#b8b8c8",
-    lineHeight: 22,
-  },
-  bold: {
-    fontWeight: "600",
-    color: "#ffffff",
-  },
-  small: {
-    fontSize: 12,
-    color: "#8a8a9a",
-    marginTop: 6,
-    lineHeight: 18,
-  },
-  actions: {
-    flexDirection: "row",
-    gap: 8,
-    marginTop: 16,
-    flexWrap: "wrap",
-  },
-  listItemHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    gap: 8,
-    marginBottom: 6,
-  },
-});
